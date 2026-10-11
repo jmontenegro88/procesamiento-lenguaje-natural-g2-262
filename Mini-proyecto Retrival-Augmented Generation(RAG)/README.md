@@ -1,6 +1,6 @@
 # Asistente RAG para servicios de posgrado en Icesi
 
-Este mini-proyecto implementa un asistente conversacional de Retrieval-Augmented Generation (RAG) para consultar información pública de servicios y procesos relacionados con posgrados de la Universidad Icesi. Sigue el flujo presentado en los notebooks de `Sesion5`, pero utiliza páginas institucionales distintas a Wikihow e incorpora comparación cuantitativa de recuperación, análisis exploratorio y evaluación cualitativa.
+Este mini-proyecto implementa un asistente conversacional de Retrieval-Augmented Generation (RAG) para consultar información pública de servicios y procesos relacionados con posgrados de la Universidad Icesi. Incluye comparación cuantitativa de métodos de recuperación y tamaños de fragmento, análisis exploratorio y evaluación cualitativa.
 
 ## Problema y alcance
 
@@ -50,15 +50,13 @@ El notebook [`rag-asistente-posgrados-icesi.ipynb`](./rag-asistente-posgrados-ic
 6. Prueba preguntas respondibles, compuestas y fuera del corpus. El chatbot presenta pasajes textuales verificados en lugar de completar respuestas con inferencias no respaldadas; revisa los enlaces y confirma que los pasajes resuelvan cada parte de la pregunta.
 7. Ejecuta Gradio para grabar la demostración de la interfaz y las citas, tal como pide la consigna.
 
-El modelo generativo descarga varios GB; GPU es recomendable y CPU puede ser lenta. El notebook fue preparado, pero no ejecutado en esta entrega. La conexión, el acceso de las páginas y la disponibilidad de GPU deben validarse en tu sesión de Colab.
+**Video uso del chatbot:** [Abrir la carpeta de demostración en Google Drive](https://drive.google.com/drive/folders/1qEFrMWcC3_bGeyFxnBqv2s1LmACvNkn6).
+
+El modelo generativo descarga varios GB; GPU es recomendable y CPU puede ser lenta. No ejecuté las celdas al editar esta entrega; se conservaron las salidas guardadas del notebook. La conexión, el acceso de las páginas y la disponibilidad de GPU deben validarse en tu sesión de Colab.
 
 Si el servidor de Icesi bloquea las solicitudes del runtime de Colab (`403 Forbidden`), el notebook ofrece subir los HTML y PDF descargados manualmente desde el navegador. La resolución se lee con `pypdf`; conserva la página oficial como procedencia y revisa la extracción antes de confiar en sus respuestas.
 
 Si una instalación anterior quedó ejecutándose, interrúmpela con el botón de detener de Colab y restablece el entorno desde **Entorno de ejecución → Desconectar y eliminar entorno de ejecución**. Luego vuelve a abrir/subir la versión actualizada del notebook y ejecuta las celdas desde el inicio. Una instalación nueva puede tardar unos minutos, pero no debería quedarse indefinidamente en `Installing build dependencies`; si lo hace, revisa que estés usando la versión actualizada del notebook y que Colab tenga conexión a internet.
-
-## Relación con los mini-proyectos previos
-
-El proyecto aprovecha la estructura de entregas previas: caso y pregunta explícitos, hipótesis comprobable, EDA, baseline, comparación bajo las mismas consultas, métricas, revisión de errores, reproducibilidad y conclusiones prudentes. Del flujo de `Sesion5` toma la segmentación de documentos, recuperación, generación con contexto y chatbot; cambia por completo el corpus de Wikihow y agrega evaluación sistemática de métodos y tamaños de fragmento.
 
 ## Tecnologías
 
@@ -70,14 +68,16 @@ El proyecto aprovecha la estructura de entregas previas: caso y pregunta explíc
 
 ## Resultados y conclusiones
 
-Completa esta sección después de ejecutar el notebook. Reporta Recall@3 y MRR en selección y prueba, indica las fuentes que no se descargaron, analiza ejemplos de recuperación incorrecta y contrasta la respuesta generada con sus páginas citadas. No atribuyas mejoras al modelo sin evidencia observable.
+En las salidas guardadas, la partición de selección tiene 4 consultas y la prueba reservada, 5. En `dev`, BM25 con fragmentos de 120 palabras obtuvo el mejor resultado global: Recall@3 = 1.000 y MRR = 0.875. Dense con fragmentos de 240 palabras fue la mejor configuración densa (Recall@3 = 0.750; MRR = 0.792) y es la configuración densa seleccionada para el chatbot. En `test`, las dos fragmentaciones y ambos métodos obtuvieron Recall@3 = 1.000 y MRR = 1.000. El empate observado no demuestra que sean equivalentes en general: la muestra de prueba es pequeña y sus etiquetas fueron anotadas manualmente.
+
+El efecto de fragmentación dependió del método: para Dense, el MRR subió de 0.536 con 120 palabras a 0.792 con 240, mientras BM25 bajó de 0.875 a 0.750; Recall@3 se mantuvo en 0.750 para Dense y 1.000 para BM25. Así, los datos no respaldan un único tamaño ganador para ambos métodos. Estas métricas describen la recuperación de fuentes relevantes, no la factualidad ni la completitud de las respuestas del generador. Las citas se validan contra el corpus, pero cada respuesta debe revisarse junto con sus enlaces y abstenerse cuando falte evidencia. Antes de presentar el resultado como generalizable, conviene ampliar la evaluación y documentar las fuentes que no se descargaron.
 
 ## Limitaciones
 
 - La cobertura depende de páginas públicas y de su extracción actual; contenido dinámico puede no estar disponible.
 - Las preguntas y etiquetas de relevancia son pocas y anotadas manualmente, por lo que las métricas son exploratorias.
 - El corpus contiene una resolución modificatoria, no el reglamento completo ni el calendario académico; no debe presentarse como cobertura normativa exhaustiva.
-- La recuperación híbrida mejora la combinación de señales léxicas y semánticas, pero no garantiza que los fragmentos recuperados respondan por completo. Las citas verificadas prueban que el texto aparece en el corpus, no que la respuesta cubra todos los matices; toda respuesta requiere verificación humana.
+- La recuperación híbrida combina señales léxicas y semánticas, pero no garantiza que los fragmentos recuperados respondan por completo. Las citas verificadas prueban que el texto aparece en el corpus, no que la respuesta cubra todos los matices; toda respuesta requiere verificación humana.
 - El código requiere acceso a internet y la descarga de modelos; las versiones y resultados pueden variar.
 
 ## Autor
